@@ -122,7 +122,7 @@ public class SheetColumn extends UIInput implements ClientBehaviorHolder {
         /**
          * Flag indicating whether or not the column is read only
          */
-        readonly,
+        readOnly,
 
         /**
          * Flag indicating whether or not a cell is read only
@@ -143,6 +143,11 @@ public class SheetColumn extends UIInput implements ClientBehaviorHolder {
          * Filter options
          */
         filterOptions,
+
+        /**
+         * The filter match mode: startsWith, endsWith, contains, exact
+         */
+        filterMatchMode,
 
         /**
          * The submitted filtered value
@@ -203,8 +208,8 @@ public class SheetColumn extends UIInput implements ClientBehaviorHolder {
      *
      * @param value
      */
-    public void setReadonly(final Boolean value) {
-        getStateHelper().put(PropertyKeys.readonly, value);
+    public void setReadOnly(final Boolean value) {
+        getStateHelper().put(PropertyKeys.readOnly, value);
     }
 
     /**
@@ -212,8 +217,8 @@ public class SheetColumn extends UIInput implements ClientBehaviorHolder {
      *
      * @return true if read only, otherwise false
      */
-    public Boolean isReadonly() {
-        return Boolean.valueOf(getStateHelper().eval(PropertyKeys.readonly, Boolean.FALSE).toString());
+    public Boolean isReadOnly() {
+        return Boolean.valueOf(getStateHelper().eval(PropertyKeys.readOnly, Boolean.FALSE).toString());
     }
 
     /**
@@ -440,6 +445,24 @@ public class SheetColumn extends UIInput implements ClientBehaviorHolder {
      */
     public void setFilterValue(final String filterValue) {
         getStateHelper().put(PropertyKeys.filterValue, filterValue);
+    }
+
+    /**
+     * The filter match mode submitted by the user
+     *
+     * @return
+     */
+    public String getFilterMatchMode() {
+        return (String) getStateHelper().get(PropertyKeys.filterMatchMode);
+    }
+
+    /**
+     * Update the filter match mode for this column
+     *
+     * @param filterMatchMode
+     */
+    public void setFilterMatchMode(final String filterMatchMode) {
+        getStateHelper().put(PropertyKeys.filterMatchMode, filterMatchMode);
     }
 
     /**
