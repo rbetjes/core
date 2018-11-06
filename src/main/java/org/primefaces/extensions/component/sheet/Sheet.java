@@ -61,8 +61,7 @@ import org.primefaces.util.Constants;
  * @author Mark Lassiter / Melloware
  * @since 6.2
  */
-@ResourceDependencies({
-            @ResourceDependency(library = "primefaces", name = "components.css"),
+@ResourceDependencies({@ResourceDependency(library = "primefaces", name = "components.css"),
             @ResourceDependency(library = "primefaces", name = "jquery/jquery.js"),
             @ResourceDependency(library = "primefaces", name = "core.js"),
             @ResourceDependency(library = "primefaces", name = "components.js"),
@@ -81,9 +80,8 @@ public class Sheet extends UIInput implements ClientBehaviorHolder, EditableValu
     public static final String COMPONENT_FAMILY = "org.primefaces.extensions.component";
     private static final String DEFAULT_RENDERER = "org.primefaces.extensions.component.SheetRenderer";
 
-    private static final Collection<String> EVENT_NAMES = Collections
-                .unmodifiableCollection(Arrays.asList(EVENT_CHANGE, EVENT_CELL_SELECT, EVENT_SORT, EVENT_FILTER, EVENT_COLUMN_SELECT,
-                            EVENT_ROW_SELECT));
+    private static final Collection<String> EVENT_NAMES = Collections.unmodifiableCollection(Arrays.asList(EVENT_CHANGE,
+                EVENT_CELL_SELECT, EVENT_SORT, EVENT_FILTER, EVENT_COLUMN_SELECT, EVENT_ROW_SELECT));
 
     /**
      * Properties that are tracked by state saving.
@@ -108,6 +106,11 @@ public class Sheet extends UIInput implements ClientBehaviorHolder, EditableValu
          * The request scope attribute under which the data object for the current row will be exposed when iterating.
          */
         var,
+
+        /**
+         * The IL8N Locale. Default is en-US.
+         */
+        locale,
 
         /**
          * The selected row
@@ -167,6 +170,12 @@ public class Sheet extends UIInput implements ClientBehaviorHolder, EditableValu
          * Fixed rows when scrolling
          */
         fixedRows,
+
+        /**
+         * You can fix the bottom rows of the table, by using the fixedRowsBottom config option. This way, when you're scrolling the table, the fixed rows will
+         * stay at the bottom edge of the table's container.
+         */
+        fixedRowsBottom,
 
         /**
          * Fixed columns when scrolling
@@ -348,7 +357,7 @@ public class Sheet extends UIInput implements ClientBehaviorHolder, EditableValu
     /**
      * Transient list of sheet updates that can be accessed after a successful model update.
      */
-    private final List<SheetUpdate> updates = new ArrayList<SheetUpdate>();
+    private final List<SheetUpdate> updates = new ArrayList<>();
 
     /**
      * Maps a visible, rendered column index to the actual column based on whether or not the column is rendered. Updated on encode, and used on decode. Saved
@@ -418,9 +427,8 @@ public class Sheet extends UIInput implements ClientBehaviorHolder, EditableValu
     }
 
     private boolean isSelfRequest(final FacesContext context) {
-        return this.getClientId(context)
-                    .equals(context.getExternalContext().getRequestParameterMap().get(
-                                Constants.RequestParams.PARTIAL_SOURCE_PARAM));
+        return this.getClientId(context).equals(context.getExternalContext().getRequestParameterMap()
+                    .get(Constants.RequestParams.PARTIAL_SOURCE_PARAM));
     }
 
     public void setStyleClass(final String styleClass) {
@@ -626,7 +634,7 @@ public class Sheet extends UIInput implements ClientBehaviorHolder, EditableValu
      */
     public List<SheetColumn> getColumns() {
         if (columns == null) {
-            columns = new ArrayList<SheetColumn>();
+            columns = new ArrayList<>();
             getColumns(this);
         }
         return columns;
@@ -706,6 +714,18 @@ public class Sheet extends UIInput implements ClientBehaviorHolder, EditableValu
         return Integer.valueOf(result.toString());
     }
 
+    public void setFixedRowsBottom(final Integer value) {
+        getStateHelper().put(PropertyKeys.fixedRowsBottom, value);
+    }
+
+    public Integer getFixedRowsBottom() {
+        final Object result = getStateHelper().eval(PropertyKeys.fixedRowsBottom, null);
+        if (result == null) {
+            return null;
+        }
+        return Integer.valueOf(result.toString());
+    }
+
     public void setFixedCols(final Integer value) {
         getStateHelper().put(PropertyKeys.fixedCols, value);
     }
@@ -718,6 +738,14 @@ public class Sheet extends UIInput implements ClientBehaviorHolder, EditableValu
         return Integer.valueOf(result.toString());
     }
 
+    public String getLocale() {
+        return (String) getStateHelper().eval(PropertyKeys.locale, "en-US");
+    }
+
+    public void setLocale(final String locale) {
+        getStateHelper().put(PropertyKeys.locale, locale);
+    }
+
     /**
      * The list of invalid updates
      *
@@ -725,7 +753,7 @@ public class Sheet extends UIInput implements ClientBehaviorHolder, EditableValu
      */
     public List<SheetInvalidUpdate> getInvalidUpdates() {
         if (invalidUpdates == null) {
-            invalidUpdates = new ArrayList<SheetInvalidUpdate>();
+            invalidUpdates = new ArrayList<>();
         }
         return invalidUpdates;
     }
@@ -1158,13 +1186,10 @@ public class Sheet extends UIInput implements ClientBehaviorHolder, EditableValu
     }
 
     /**
-     * Evaluates the specified item value against the column filters and if they match, returns true, otherwise false.
-     * If no filterMatchMode is given on a column than the "contains" mode is used.
-     * Otherwise the following filterMatchMode values are possible:
-     * - startsWith: Checks if column value starts with the filter value.
-     * - endsWith: Checks if column value ends with the filter value.
-     * - contains: Checks if column value contains the filter value.
-     * - exact: Checks if string representations of column value and filter value are same.
+     * Evaluates the specified item value against the column filters and if they match, returns true, otherwise false. If no filterMatchMode is given on a
+     * column than the "contains" mode is used. Otherwise the following filterMatchMode values are possible: - startsWith: Checks if column value starts with
+     * the filter value. - endsWith: Checks if column value ends with the filter value. - contains: Checks if column value contains the filter value. - exact:
+     * Checks if string representations of column value and filter value are same.
      *
      * @param obj
      * @return
@@ -1222,8 +1247,8 @@ public class Sheet extends UIInput implements ClientBehaviorHolder, EditableValu
     public List<Object> sortAndFilter() {
         final List filteredList = getFilteredValue();
         filteredList.clear();
-        rowMap = new HashMap<String, Object>();
-        rowNumbers = new HashMap<String, Integer>();
+        rowMap = new HashMap<>();
+        rowNumbers = new HashMap<>();
 
         final Collection<?> values = (Collection<?>) getValue();
         if (values == null || values.isEmpty()) {
@@ -1259,8 +1284,8 @@ public class Sheet extends UIInput implements ClientBehaviorHolder, EditableValu
 
         final ValueExpression veSortBy = getValueExpression(PropertyKeys.sortBy.name());
         if (veSortBy != null) {
-            Collections.sort(filteredList, new BeanPropertyComparator(veSortBy, var, convertSortOrder(), null, isCaseSensitiveSort(),
-                        Locale.ENGLISH, getNullSortOrder()));
+            Collections.sort(filteredList, new BeanPropertyComparator(veSortBy, var, convertSortOrder(), null,
+                        isCaseSensitiveSort(), Locale.ENGLISH, getNullSortOrder()));
         }
 
         // map filtered rows
@@ -1289,7 +1314,7 @@ public class Sheet extends UIInput implements ClientBehaviorHolder, EditableValu
      * Remaps the row keys in a hash map.
      */
     protected void remapRows() {
-        rowMap = new HashMap<String, Object>();
+        rowMap = new HashMap<>();
         final FacesContext context = FacesContext.getCurrentInstance();
         final Map<String, Object> requestMap = context.getExternalContext().getRequestMap();
         final Collection<?> values = (Collection<?>) getValue();
@@ -1551,7 +1576,7 @@ public class Sheet extends UIInput implements ClientBehaviorHolder, EditableValu
         final Iterator<Entry<SheetRowColIndex, Object>> entries = localValues.entrySet().iterator();
         // Keep track of the dirtied rows for ajax callbacks so we can send
         // updates on what was touched
-        final HashSet<String> dirtyRows = new HashSet<String>();
+        final HashSet<String> dirtyRows = new HashSet<>();
         while (entries.hasNext()) {
             final Entry<SheetRowColIndex, Object> entry = entries.next();
 
@@ -1777,7 +1802,7 @@ public class Sheet extends UIInput implements ClientBehaviorHolder, EditableValu
      * Updates the column mappings based on the rendered attribute
      */
     public void updateColumnMappings() {
-        columnMapping = new HashMap<Integer, Integer>();
+        columnMapping = new HashMap<>();
         int realIdx = 0;
         int renderIdx = 0;
         for (final SheetColumn column : getColumns()) {
@@ -1846,7 +1871,8 @@ public class Sheet extends UIInput implements ClientBehaviorHolder, EditableValu
             final Object rowKey = sheetInvalidUpdate.getInvalidRowKey();
             final int col = getRenderIndexFromRealIdx(sheetInvalidUpdate.getInvalidColIndex());
             final String rowKeyProperty = this.getRowKeyValueAsString(rowKey);
-            vb.appendProperty(rowKeyProperty + "_c" + col, sheetInvalidUpdate.getInvalidMessage().replace("'", "&apos;"), true);
+            vb.appendProperty(rowKeyProperty + "_c" + col,
+                        sheetInvalidUpdate.getInvalidMessage().replace("'", "&apos;"), true);
         }
         return vb.closeVar().toString();
     }
@@ -1933,7 +1959,8 @@ public class Sheet extends UIInput implements ClientBehaviorHolder, EditableValu
     /**
      * Appends an update event
      */
-    public void appendUpdateEvent(final Object rowKey, final int colIndex, final Object rowData, final Object oldValue, final Object newValue) {
+    public void appendUpdateEvent(final Object rowKey, final int colIndex, final Object rowData, final Object oldValue,
+                final Object newValue) {
         updates.add(new SheetUpdate(rowKey, colIndex, rowData, oldValue, newValue));
     }
 }

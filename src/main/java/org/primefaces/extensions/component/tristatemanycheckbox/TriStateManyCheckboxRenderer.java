@@ -35,8 +35,8 @@ import javax.faces.convert.ConverterException;
 import javax.faces.model.SelectItem;
 
 import org.primefaces.component.selectmanycheckbox.SelectManyCheckbox;
-import org.primefaces.context.RequestContext;
 import org.primefaces.renderkit.SelectManyRenderer;
+import org.primefaces.util.ComponentUtils;
 import org.primefaces.util.Constants;
 import org.primefaces.util.HTML;
 import org.primefaces.util.WidgetBuilder;
@@ -232,8 +232,8 @@ public class TriStateManyCheckboxRenderer extends SelectManyRenderer {
 
         String statesIconsClasses = "[\"" + stateOneIconClass + "\",\"" + stateTwoIconClass + "\",\"" + stataThreeIconClass + "\"]";
 
-        String statesTitles = "[\"" + checkbox.getStateOneTitle() + "\",\""
-                    + checkbox.getStateTwoTitle() + "\",\"" + checkbox.getStateThreeTitle() + "\"]";
+        String statesTitles = "[\"" + ComponentUtils.escapeText(checkbox.getStateOneTitle()) + "\",\""
+                    + ComponentUtils.escapeText(checkbox.getStateTwoTitle()) + "\",\"" + ComponentUtils.escapeText(checkbox.getStateThreeTitle()) + "\"]";
 
         String iconClass = "ui-chkbox-icon ui-c"; // HTML.CHECKBOX_ICON_CLASS;
         String activeTitle = Constants.EMPTY_STRING;
@@ -258,7 +258,7 @@ public class TriStateManyCheckboxRenderer extends SelectManyRenderer {
             // preparation with singe quotes for .data('titlestates')
             dataTitles = "data-titlestates='" + statesTitles + "' ";
             // active title Att
-            titleAtt = " title=\"" + activeTitle + "\" ";
+            titleAtt = " title=\"" + ComponentUtils.escapeText(activeTitle) + "\" ";
         }
 
         String tabIndexTag = " tabIndex=0 ";
@@ -274,7 +274,7 @@ public class TriStateManyCheckboxRenderer extends SelectManyRenderer {
     }
 
     protected void encodeScript(FacesContext context, TriStateManyCheckbox checkbox) throws IOException {
-        WidgetBuilder wb = RequestContext.getCurrentInstance().getWidgetBuilder();
+        WidgetBuilder wb = getWidgetBuilder(context);
         wb.initWithDomReady("ExtTriStateManyCheckbox", checkbox.resolveWidgetVar(), checkbox.getClientId());
         encodeClientBehaviors(context, checkbox);
         wb.finish();
