@@ -31,12 +31,13 @@ import javax.faces.context.FacesContext;
 import javax.faces.context.ResponseWriter;
 import javax.faces.model.SelectItem;
 
-import org.apache.commons.lang3.StringUtils;
 import org.primefaces.extensions.util.JavascriptVarBuilder;
 import org.primefaces.json.JSONArray;
 import org.primefaces.json.JSONException;
 import org.primefaces.json.JSONObject;
 import org.primefaces.renderkit.CoreRenderer;
+import org.primefaces.util.Constants;
+import org.primefaces.util.LangUtils;
 import org.primefaces.util.WidgetBuilder;
 
 /**
@@ -116,7 +117,7 @@ public class SheetRenderer extends CoreRenderer {
         responseWriter.writeAttribute("class", "handsontable-inner", "styleClass");
 
         if (style == null) {
-            style = StringUtils.EMPTY;
+            style = Constants.EMPTY_STRING;
         }
 
         if (width != null) {
@@ -180,7 +181,7 @@ public class SheetRenderer extends CoreRenderer {
                 throws IOException {
         final WidgetBuilder wb = getWidgetBuilder(context);
         final String clientId = sheet.getClientId(context);
-        wb.initWithDomReady("ExtSheet", sheet.resolveWidgetVar(), clientId);
+        wb.init("ExtSheet", sheet.resolveWidgetVar(), clientId);
 
         // errors
         encodeInvalidData(context, sheet, wb);
@@ -226,7 +227,7 @@ public class SheetRenderer extends CoreRenderer {
         encodeOptionalNativeAttr(wb, "extender", sheet.getExtender());
 
         String emptyMessage = sheet.getEmptyMessage();
-        if (StringUtils.isEmpty(emptyMessage)) {
+        if (LangUtils.isValueBlank(emptyMessage)) {
             emptyMessage = "No Records Found";
         }
         encodeOptionalAttr(wb, "emptyMessage", emptyMessage);
@@ -413,8 +414,6 @@ public class SheetRenderer extends CoreRenderer {
 
     /**
      * Encode the row data. Builds row data, style data and read only object.
-     * <p>
-     * TODO figure out how to clean this up without having to iterate over data more than once and still keep it thread safe (no private member field use).
      *
      * @param context
      * @param sheet
@@ -680,7 +679,7 @@ public class SheetRenderer extends CoreRenderer {
      */
     protected void encodeFilterValues(final FacesContext context, final ResponseWriter responseWriter,
                 final Sheet sheet, final String clientId) throws IOException {
-        int renderIdx = 0;
+        int renderCol = 0;
         for (final SheetColumn column : sheet.getColumns()) {
             if (!column.isRendered()) {
                 continue;
@@ -688,14 +687,14 @@ public class SheetRenderer extends CoreRenderer {
 
             if (column.getValueExpression("filterBy") != null) {
                 responseWriter.startElement("input", null);
-                responseWriter.writeAttribute("id", clientId + "_filter_" + renderIdx, "id");
-                responseWriter.writeAttribute("name", clientId + "_filter_" + renderIdx, "name");
+                responseWriter.writeAttribute("id", clientId + "_filter_" + renderCol, "id");
+                responseWriter.writeAttribute("name", clientId + "_filter_" + renderCol, "name");
                 responseWriter.writeAttribute("type", "hidden", null);
                 responseWriter.writeAttribute("value", column.getFilterValue(), null);
                 responseWriter.endElement("input");
             }
 
-            renderIdx++;
+            renderCol++;
         }
     }
 
@@ -845,18 +844,18 @@ public class SheetRenderer extends CoreRenderer {
      */
     protected void decodeFilters(final FacesContext context, final Sheet sheet, final Map<String, String> params,
                 final String clientId) {
-        int renderIdx = 0;
+        int renderCol = 0;
         for (final SheetColumn column : sheet.getColumns()) {
             if (!column.isRendered()) {
                 continue;
             }
 
             if (column.getValueExpression("filterBy") != null) {
-                final String value = params.get(clientId + "_filter_" + renderIdx);
+                final String value = params.get(clientId + "_filter_" + renderCol);
                 column.setFilterValue(value);
             }
 
-            renderIdx++;
+            renderCol++;
         }
     }
 
@@ -910,7 +909,7 @@ public class SheetRenderer extends CoreRenderer {
      * @param jsonSelection
      */
     private void decodeSelection(final FacesContext context, final Sheet sheet, final String jsonSelection) {
-        if (StringUtils.isEmpty(jsonSelection)) {
+        if (LangUtils.isValueBlank(jsonSelection)) {
             return;
         }
 
@@ -936,7 +935,7 @@ public class SheetRenderer extends CoreRenderer {
      * @param jsonData
      */
     private void decodeSubmittedValues(final FacesContext context, final Sheet sheet, final String jsonData) {
-        if (StringUtils.isEmpty(jsonData)) {
+        if (LangUtils.isValueBlank(jsonData)) {
             return;
         }
 

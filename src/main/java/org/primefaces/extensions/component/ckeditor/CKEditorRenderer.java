@@ -41,7 +41,7 @@ public class CKEditorRenderer extends InputRenderer {
     public void decode(final FacesContext context, final UIComponent component) {
         final CKEditor ckEditor = (CKEditor) component;
 
-        if (ckEditor.isReadonly()) {
+        if (!shouldDecode(ckEditor)) {
             return;
         }
 
@@ -76,8 +76,10 @@ public class CKEditorRenderer extends InputRenderer {
             writer.writeAttribute("tabindex", ckEditor.getTabindex(), null);
         }
 
-        renderPassThruAttributes(context, ckEditor, HTML.INPUT_TEXTAREA_ATTRS);
+        renderAccessibilityAttributes(context, ckEditor);
+        renderPassThruAttributes(context, ckEditor, HTML.TEXTAREA_ATTRS_WITHOUT_EVENTS);
         renderDomEvents(context, ckEditor, HTML.INPUT_TEXT_EVENTS);
+        renderValidationMetadata(context, ckEditor);
 
         final String valueToRender = ComponentUtils.getValueToRender(context, ckEditor);
         if (valueToRender != null) {
@@ -94,7 +96,7 @@ public class CKEditorRenderer extends InputRenderer {
 
     protected void encodeScript(final FacesContext context, final CKEditor ckEditor) throws IOException {
         final WidgetBuilder wb = getWidgetBuilder(context);
-        wb.initWithDomReady("ExtCKEditor", ckEditor.resolveWidgetVar(), ckEditor.getClientId());
+        wb.init("ExtCKEditor", ckEditor.resolveWidgetVar(), ckEditor.getClientId());
         wb.attr("height", ckEditor.getHeight())
                     .attr("width", ckEditor.getWidth())
                     .attr("skin", ckEditor.getSkin())

@@ -45,7 +45,7 @@ public class CodeMirrorRenderer extends InputRenderer {
     public void decode(final FacesContext facesContext, final UIComponent component) {
         final CodeMirror codeMirror = (CodeMirror) component;
 
-        if (codeMirror.isReadonly()) {
+        if (!shouldDecode(codeMirror)) {
             return;
         }
 
@@ -97,8 +97,10 @@ public class CodeMirrorRenderer extends InputRenderer {
         writer.writeAttribute("id", clientId, null);
         writer.writeAttribute("name", clientId, null);
 
-        renderPassThruAttributes(context, codeMirror, HTML.INPUT_TEXTAREA_ATTRS);
+        renderAccessibilityAttributes(context, codeMirror);
+        renderPassThruAttributes(context, codeMirror, HTML.TEXTAREA_ATTRS_WITHOUT_EVENTS);
         renderDomEvents(context, codeMirror, HTML.INPUT_TEXT_EVENTS);
+        renderValidationMetadata(context, codeMirror);
 
         final String valueToRender = ComponentUtils.getValueToRender(context, codeMirror);
         if (valueToRender != null) {
@@ -114,8 +116,8 @@ public class CodeMirrorRenderer extends InputRenderer {
     }
 
     protected void encodeScript(final FacesContext context, final CodeMirror codeMirror) throws IOException {
-        WidgetBuilder wb = getWidgetBuilder(context);
-        wb.initWithDomReady("ExtCodeMirror", codeMirror.resolveWidgetVar(), codeMirror.getClientId());
+        final WidgetBuilder wb = getWidgetBuilder(context);
+        wb.init("ExtCodeMirror", codeMirror.resolveWidgetVar(), codeMirror.getClientId());
         wb.attr("theme", codeMirror.getTheme())
                     .attr("mode", codeMirror.getMode())
                     .attr("indentUnit", codeMirror.getIndentUnit())

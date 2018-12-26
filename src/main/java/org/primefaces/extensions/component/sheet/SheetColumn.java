@@ -176,6 +176,13 @@ public class SheetColumn extends UIInput implements ClientBehaviorHolder {
      */
     private Sheet sheet;
 
+    /**
+     * Default constructor
+     */
+    public SheetColumn() {
+        setRendererType(null);
+    }
+
     /*
      * (non-Javadoc)
      * @see javax.faces.component.UIComponent#getFamily()
