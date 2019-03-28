@@ -1,5 +1,5 @@
 /**
- * Copyright 2011-2018 PrimeFaces Extensions
+ * Copyright 2011-2019 PrimeFaces Extensions
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@ import java.io.IOException;
 
 import javax.faces.FacesException;
 import javax.faces.component.UIComponent;
+import javax.faces.component.UIForm;
 import javax.faces.context.FacesContext;
 import javax.faces.context.ResponseWriter;
 import javax.faces.event.ActionEvent;
@@ -83,7 +84,7 @@ public class TimerRenderer extends CoreRenderer {
         final String clientId = timer.getClientId(context);
         final String widgetVar = timer.resolveWidgetVar();
 
-        final UIComponent form = ComponentTraversalUtils.closestForm(context, timer);
+        final UIForm form = ComponentTraversalUtils.closestForm(context, timer);
         if (form == null) {
             throw new FacesException("Timer:" + clientId + " needs to be enclosed in a form component");
         }
@@ -92,7 +93,7 @@ public class TimerRenderer extends CoreRenderer {
 
         final String request = builder.init()
                     .source(clientId)
-                    .form(form.getClientId(context))
+                    .form(timer, timer, form)
                     .process(timer, timer.getProcess())
                     .update(timer, timer.getUpdate())
                     .async(timer.isAsync())
@@ -110,7 +111,8 @@ public class TimerRenderer extends CoreRenderer {
 
         final WidgetBuilder wb = getWidgetBuilder(context);
 
-        wb.init("ExtTimer", widgetVar, clientId).attr("timeout", timer.getTimeout())
+        wb.init("ExtTimer", widgetVar, clientId)
+                    .attr("timeout", timer.getTimeout()).attr("interval", timer.getInterval())
                     .attr("singleRun", timer.isSingleRun()).attr("format", timer.getFormat())
                     .attr("autoStart", timer.isAutoStart()).attr("forward", timer.isForward())
                     .callback("listener", "function()", request);

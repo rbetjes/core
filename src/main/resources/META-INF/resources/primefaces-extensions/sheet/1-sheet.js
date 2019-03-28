@@ -48,6 +48,7 @@ PrimeFaces.widget.ExtSheet = PrimeFaces.widget.DeferredWidget.extend({
             rowHeaders: $this.cfg.rowHeaders,
             columns: $this.cfg.columns,
             stretchH: $this.cfg.stretchH || 'all',
+            selectionMode: $this.cfg.selectionMode || 'multiple',
             contextMenu: false,
             allowInvalid: false,
             autoRowSize: !$this.cfg.rowHeaders,
@@ -504,10 +505,11 @@ PrimeFaces.widget.ExtSheet = PrimeFaces.widget.DeferredWidget.extend({
             // allow backspace, tab, delete, enter, arrows, numbers and keypad numbers
             // ONLY home, end, F5, F12, minus (-), period (.)
             // console.log('Key: ' + key + ' Shift: ' + e.shiftKey + ' Clipboard: ' + isClipboard);
-            var isNumeric = ((key == 8) || (key == 9) || (key == 13) || (key == 46)
-                            || (key == 116) || (key == 123) || (key == 189) || (key == 190) 
-                            || ((key >= 35) && (key <= 40)) || ((key >= 48) && (key <= 57)) 
-                            || ((key >= 96) && (key <= 105)));
+            var isNumeric = ((key == 8) || (key == 9) || (key == 13)
+                    || (key == 46) || (key == 110) || (key == 116)
+                    || (key == 123) || (key == 188) || (key == 189)
+                    || (key == 190) || ((key >= 35) && (key <= 40))
+                    || ((key >= 48) && (key <= 57)) || ((key >= 96) && (key <= 105)));
 
             if ((!isNumeric && !isClipboard) || e.shiftKey) {
                 // prevent alpha characters

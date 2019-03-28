@@ -1,5 +1,5 @@
 /**
- * Copyright 2011-2018 PrimeFaces Extensions
+ * Copyright 2011-2019 PrimeFaces Extensions
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -573,7 +573,12 @@ public abstract class AbstractDynamicData extends UIComponentBase implements Nam
             state.setSubmittedValue(input.getSubmittedValue());
             state.setLocalValueSet(input.isLocalValueSet());
             state.setLabelValue(((UIComponent) input).getAttributes().get("label"));
+
+            //currently we can't save/restore the disabled: See #571 #644
+            //we also can't change it easily as the var is not not exposed at this time; it would need some refactoring
+            /*
             state.setDisabled(((UIComponent) input).getAttributes().get("disabled"));
+            */
         }
 
         for (final UIComponent child : component.getChildren()) {
@@ -616,6 +621,14 @@ public abstract class AbstractDynamicData extends UIComponentBase implements Nam
             if (state.getLabelValue() != null) {
                 ((UIComponent) input).getAttributes().put("label", state.getLabelValue());
             }
+
+            //currently we can't save/restore the disabled: See #571 #644
+            //we also can't change it easily as the var is not not exposed at this time; it would need some refactoring
+            /*
+            if (state.getDisabled() != null) {
+                ((UIComponent) input).getAttributes().put("disabled", state.getDisabled());
+            }
+            */
         }
 
         for (final UIComponent child : component.getChildren()) {

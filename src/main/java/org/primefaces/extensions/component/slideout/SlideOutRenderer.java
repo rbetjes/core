@@ -1,5 +1,5 @@
 /**
- * Copyright 2011-2018 PrimeFaces Extensions
+ * Copyright 2011-2019 PrimeFaces Extensions
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -174,12 +174,22 @@ public class SlideOutRenderer extends CoreRenderer {
         }
 
         if (slideOut.getOnopen() != null) {
-            // Define a callback function before the panel is opened
             wb.callback("onOpen", "function()", slideOut.getOnopen());
         }
         if (slideOut.getOnclose() != null) {
-            // Define a callback function when the panel is closed
             wb.callback("onClose", "function()", slideOut.getOnclose());
+        }
+        if (slideOut.getOnslide() != null) {
+            wb.callback("onSlide", "function()", slideOut.getOnslide());
+        }
+        if (slideOut.getOnbeforeopen() != null) {
+            wb.callback("onBeforeOpen", "function()", slideOut.getOnbeforeopen());
+        }
+        if (slideOut.getOnbeforeclose() != null) {
+            wb.callback("onBeforeClose", "function()", slideOut.getOnbeforeclose());
+        }
+        if (slideOut.getOnbeforeslide() != null) {
+            wb.callback("onBeforeSlide", "function()", slideOut.getOnbeforeslide());
         }
 
         encodeClientBehaviors(context, slideOut);

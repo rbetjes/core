@@ -1,5 +1,5 @@
 /**
- * Copyright 2011-2018 PrimeFaces Extensions
+ * Copyright 2011-2019 PrimeFaces Extensions
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -139,7 +139,7 @@ public class BlockUIRenderer extends CoreRenderer {
 
         final String css = blockUI.getCss();
         if (css != null) {
-            wb.attr("css", css);
+            wb.nativeAttr("css", css);
         }
 
         final String cssOverlay = blockUI.getCssOverlay();

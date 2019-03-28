@@ -1,5 +1,5 @@
 /**
- * Copyright 2011-2018 PrimeFaces Extensions
+ * Copyright 2011-2019 PrimeFaces Extensions
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -757,32 +757,38 @@ public class ExcelExporter extends Exporter {
             if (component instanceof RowExpansion) {
                 final RowExpansion rowExpansion = (RowExpansion) component;
                 if (rowExpansion.getChildren() != null) {
-                    if (rowExpansion.getChildren().get(0) instanceof DataList) {
-                        final DataList list = (DataList) rowExpansion.getChildren().get(0);
-                        if (list.getHeader() != null) {
-                            tableFacet(context, sheet, list, "header");
+                    for (int i = 0; i < rowExpansion.getChildren().size(); i++) {
+                        final UIComponent child = rowExpansion.getChildren().get(i);
+                        if (child instanceof DataList) {
+                            final DataList list = (DataList) child;
+                            if (list.getHeader() != null) {
+                                tableFacet(context, sheet, list, "header");
+                            }
+                            exportAll(context, list, sheet);
                         }
-                        exportAll(context, list, sheet);
                     }
-                    if (rowExpansion.getChildren().get(0) instanceof DataTable) {
-                        final DataTable childTable = (DataTable) rowExpansion.getChildren().get(0);
-                        final int columnsCount = getColumnsCount(childTable);
+                    for (int i = 0; i < rowExpansion.getChildren().size(); i++) {
+                        if (rowExpansion.getChildren().get(i) instanceof DataTable) {
+                            final DataTable childTable = (DataTable) rowExpansion.getChildren().get(i);
+                            final int columnsCount = getColumnsCount(childTable);
+                            if (columnsCount > 0) { // In case none of the colums are exportable.
+                                if (childTable.getHeader() != null) {
+                                    tableFacet(context, sheet, childTable, columnsCount, "header");
 
-                        if (childTable.getHeader() != null) {
-                            tableFacet(context, sheet, childTable, columnsCount, "header");
+                                }
+                                tableColumnGroup(sheet, childTable, "header");
 
+                                addColumnFacets(childTable, sheet, ColumnType.HEADER);
+
+                                exportAll(context, childTable, sheet, false);
+
+                                if (childTable.hasFooterColumn()) {
+                                    addColumnFacets(childTable, sheet, ColumnType.FOOTER);
+                                }
+                                tableColumnGroup(sheet, childTable, "footer");
+                                childTable.setRowIndex(-1);
+                            }
                         }
-                        tableColumnGroup(sheet, childTable, "header");
-
-                        addColumnFacets(childTable, sheet, ColumnType.HEADER);
-
-                        exportAll(context, childTable, sheet, false);
-
-                        if (childTable.hasFooterColumn()) {
-                            addColumnFacets(childTable, sheet, ColumnType.FOOTER);
-                        }
-                        tableColumnGroup(sheet, childTable, "footer");
-                        childTable.setRowIndex(-1);
                     }
 
                 }

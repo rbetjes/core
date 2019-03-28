@@ -1,5 +1,5 @@
 /**
- * Copyright 2011-2018 PrimeFaces Extensions
+ * Copyright 2011-2019 PrimeFaces Extensions
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -710,21 +710,24 @@ public class PDFExporter extends Exporter {
             if (component instanceof RowExpansion) {
                 final RowExpansion rowExpansion = (RowExpansion) component;
                 if (rowExpansion.getChildren() != null) {
-                    if (rowExpansion.getChildren().get(0) instanceof DataTable) {
-                        final DataTable childTable = (DataTable) rowExpansion.getChildren().get(0);
-                        final PdfPTable pdfTableChild = exportPDFTable(context, childTable, false, false, "-", false);
-                        final PdfPCell cell = new PdfPCell();
-                        cell.addElement(pdfTableChild);
-                        cell.setColspan(pdfTable.getNumberOfColumns());
-                        pdfTable.addCell(cell);
-                    }
-                    if (rowExpansion.getChildren().get(0) instanceof DataList) {
-                        final DataList list = (DataList) rowExpansion.getChildren().get(0);
-                        final PdfPTable pdfTableChild = exportPDFTable(context, list, false, "-");
-                        pdfTableChild.getDefaultCell().setBorder(Rectangle.NO_BORDER);
-                        final PdfPCell cell = new PdfPCell();
-                        cell.addElement(pdfTableChild);
-                        cell.setColspan(pdfTable.getNumberOfColumns());
+                    for (int i = 0; i < rowExpansion.getChildren().size(); i++) {
+                        final UIComponent child = rowExpansion.getChildren().get(i);
+                        if (child instanceof DataTable) {
+                            final DataTable childTable = (DataTable) child;
+                            final PdfPTable pdfTableChild = exportPDFTable(context, childTable, false, false, "-", false);
+                            final PdfPCell cell = new PdfPCell();
+                            cell.addElement(pdfTableChild);
+                            cell.setColspan(pdfTable.getNumberOfColumns());
+                            pdfTable.addCell(cell);
+                        }
+                        if (child instanceof DataList) {
+                            final DataList list = (DataList) child;
+                            final PdfPTable pdfTableChild = exportPDFTable(context, list, false, "-");
+                            pdfTableChild.getDefaultCell().setBorder(Rectangle.NO_BORDER);
+                            final PdfPCell cell = new PdfPCell();
+                            cell.addElement(pdfTableChild);
+                            cell.setColspan(pdfTable.getNumberOfColumns());
+                        }
                     }
                 }
 

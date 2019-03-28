@@ -1,5 +1,5 @@
 /**
- * Copyright 2011-2018 PrimeFaces Extensions
+ * Copyright 2011-2019 PrimeFaces Extensions
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -215,6 +215,7 @@ public class SheetRenderer extends CoreRenderer {
         encodeOptionalNativeAttr(wb, "maxCols", sheet.getMaxCols());
         encodeOptionalAttr(wb, "stretchH", sheet.getStretchH());
         encodeOptionalAttr(wb, "language", sheet.getLocale());
+        encodeOptionalAttr(wb, "selectionMode", sheet.getSelectionMode());
         encodeOptionalAttr(wb, "activeHeaderClassName", sheet.getActiveHeaderStyleClass());
         encodeOptionalAttr(wb, "commentedCellClassName", sheet.getCommentedCellStyleClass());
         encodeOptionalAttr(wb, "currentRowClassName", sheet.getCurrentRowStyleClass());

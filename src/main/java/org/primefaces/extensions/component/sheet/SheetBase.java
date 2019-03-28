@@ -1,5 +1,5 @@
 /**
- * Copyright 2011-2018 PrimeFaces Extensions
+ * Copyright 2011-2019 PrimeFaces Extensions
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,6 @@ package org.primefaces.extensions.component.sheet;
 import java.util.ArrayList;
 
 import javax.el.ValueExpression;
-import javax.faces.component.EditableValueHolder;
 import javax.faces.component.UIComponent;
 import javax.faces.component.UIInput;
 import javax.faces.component.behavior.ClientBehaviorHolder;
@@ -34,7 +33,7 @@ import org.primefaces.util.ComponentUtils;
  * @author Mark Lassiter / Melloware
  * @since 6.2
  */
-abstract class SheetBase extends UIInput implements ClientBehaviorHolder, EditableValueHolder, Widget {
+abstract class SheetBase extends UIInput implements ClientBehaviorHolder, Widget {
 
     public static final String COMPONENT_FAMILY = "org.primefaces.extensions.component";
     private static final String DEFAULT_RENDERER = "org.primefaces.extensions.component.SheetRenderer";
@@ -67,6 +66,11 @@ abstract class SheetBase extends UIInput implements ClientBehaviorHolder, Editab
          * The IL8N Locale. Default is en-US.
          */
         locale,
+
+        /**
+         * single, range, multiple
+         */
+        selectionMode,
 
         /**
          * The selected row
@@ -578,6 +582,14 @@ abstract class SheetBase extends UIInput implements ClientBehaviorHolder, Editab
 
     public void setLocale(final String locale) {
         getStateHelper().put(PropertyKeys.locale, locale);
+    }
+
+    public void setSelectionMode(final String value) {
+        getStateHelper().put(PropertyKeys.selectionMode, value);
+    }
+
+    public String getSelectionMode() {
+        return (String) getStateHelper().eval(PropertyKeys.selectionMode, "multiple");
     }
 
     /**
