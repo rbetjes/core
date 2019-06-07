@@ -23,7 +23,6 @@ PrimeFaces.widget.ExtSheet = PrimeFaces.widget.DeferredWidget.extend({
         this.selectionInput = $(this.jqId + '_selection');
         this.sortByInput = $(this.jqId + '_sortby');
         this.sortOrderInput = $(this.jqId + '_sortorder');
-        this.focusInput = $(this.jqId + '_focus');
         // need to track to avoid recursion
         this.focusing = false;
         
@@ -122,7 +121,9 @@ PrimeFaces.widget.ExtSheet = PrimeFaces.widget.DeferredWidget.extend({
                 var isChanged = false;
                 var cellType = 'normal';
                 for (var i = 0; i < change.length; i++) {
-                    if (change[i][2] == change[i][3])
+                    var oldValue = change[i][2];
+                    var newValue = change[i][3];
+                    if (oldValue === newValue)
                         continue;
                     var row = change[i][0];
                     var col = change[i][1];
@@ -173,75 +174,77 @@ PrimeFaces.widget.ExtSheet = PrimeFaces.widget.DeferredWidget.extend({
                 }
             },
             afterGetColHeader: function (col, TH) {
+                var header = $(TH);
+                
+                // remove all current events
+                header.off();
+                
                 // handle sorting
                 var sortable = $this.cfg.sortable[col];
                 if (sortable) {
-                    $(TH).find('.relative .ui-sortable-column-icon').remove();
+                    header.find('.relative .ui-sortable-column-icon').remove();
                     var sortCol = $this.sortByInput.val();
                     var sortOrder = $this.sortOrderInput.val();
                     var iconclass = 'ui-sortable-column-icon ui-icon ui-icon ui-icon-carat-2-n-s ';
                     if (sortCol == col) {
                         iconclass = iconclass
                             + (sortOrder == 'ascending' ? 'ui-icon-triangle-1-n' : 'ui-icon-triangle-1-s');
-                        $(TH).addClass('ui-state-active');
+                        header.addClass('ui-state-active');
                     } else {
-                        $(TH).removeClass('ui-state-active');
+                        header.removeClass('ui-state-active');
                     }
-                    $(TH).find('.relative').append("<span class='" + iconclass + "'></span>");
-                    $(TH).addClass('ui-sortable');
-                    $(TH).off('click').click(function (e) {
+                    header.find('.relative').append("<span class='" + iconclass + "'></span>");
+                    header.addClass('ui-sortable');
+                    header.off().click(function (e) {
                         $this.sortClick($this, e, col);
                     });
                 } else {
-                    $(TH).removeClass('ui-state-active');
+                    header.removeClass('ui-state-active');
                 }
 
                 // handle filtering
                 var f = $this.cfg.filters[col];
                 if (typeof (f) != "undefined" && f != 'false') {
-                    $(TH).find('.handson-filter').remove();
+                    header.find('.handson-filter').remove();
                     var v = $($this.jqId + '_filter_' + col).val();
-                    var filterId = $this.id + '_f' + col;
                     if (f == 'true') {
-                        $(TH)
+                        header
                             .append(
-                                '<span class="handson-filter"><input type="text" id="'
-                                + filterId
-                                + '" class="ui-inputfield ui-inputtext ui-widget ui-state-default ui-corner-all" role="textbox" aria-disabled="false" aria-readonly="false" aria-multiline="false" value="'
+                                '<span class="handson-filter"><input type="text" class="ui-inputfield ui-inputtext ui-widget ui-state-default ui-corner-all" role="textbox" aria-disabled="false" aria-readonly="false" aria-multiline="false" value="'
                                 + v + '" /></span>');
-                        $(TH).find('input').change(function () {
+                        header.find('input').change(function () {
                             $this.filterchange($this, col, this.value, false)
                         }).keydown(function (e) {
                             $this.filterKeyDown($this, e)
                         }).keyup(function (e) {
                             $this.filterKeyUp($this, e)
+                        }).mouseover(function (e) {
+                            $this.filterMouseOver($this, e)
                         }).focusin(function () {
                             $this.filterFocusIn($this, this)
                         }).focusout(function () {
                             $this.filterFocusOut($this, this)
                         });
                     } else {
-                        $(TH)
+                        header
                             .append(
-                                '<span class="handson-filter"><select id="'
-                                + filterId
-                                + '" class="ui-column-filter ui-widget ui-state-default ui-corner-left" ></select></span>');
-                        var s = $(TH).find('select');
+                                '<span class="handson-filter"><select class="ui-column-filter ui-widget ui-state-default ui-corner-left" ></select></span>');
+                        var selectInput = header.find('select');
                         for (var i = 0; i < f.length; i++) {
-                            s.append('<option value="' + f[i].value + '"'
+                            selectInput.append('<option value="' + f[i].value + '"'
                                 + (f[i].value == v ? ' selected="selected"' : '') + '>' + f[i].label
                                 + '</option>');
                         }
-                        $(TH).find('select').change(function () {
+                        selectInput.change(function () {
                             $this.filterchange($this, col, this.value, true)
                         }).keydown(function (e) {
                             $this.filterKeyDown($this, e)
                         }).keyup(function (e) {
                             $this.filterKeyUp($this, e)
+                        }).mouseover(function (e) {
+                            $this.filterMouseOver($this, e)
                         }).focusin(function () {
                             $this.filterFocusIn($this, this)
-                        }).focusout(function () {
-                            $this.filterFocusOut($this, this)
                         });
                     }
                 }
@@ -293,15 +296,6 @@ PrimeFaces.widget.ExtSheet = PrimeFaces.widget.DeferredWidget.extend({
         if (selval && selval.length > 0) {
             var sel = JSON.parse(selval);
             $this.ht.selectCell(sel[0], sel[1], sel[2], sel[3], true);
-        }
-        var focusId = $this.focusInput.val();
-        if (focusId && focusId.length > 0) {
-            focusId = focusId.replace(":", "\\:");
-            // for some reason does not work when focused immediately,
-            // dom node hasn't attached
-            setTimeout(function () {
-                $('#' + focusId).focus()
-            }, 100);
         }
     },
     
@@ -378,6 +372,8 @@ PrimeFaces.widget.ExtSheet = PrimeFaces.widget.DeferredWidget.extend({
         }
         // destroy editor to avoid posting request after resort
         sheet.ht.destroyEditor(true);
+        sheet.ht.deselectCell();
+        
         sheet.callBehavior('sort');
     },
 
@@ -397,11 +393,17 @@ PrimeFaces.widget.ExtSheet = PrimeFaces.widget.DeferredWidget.extend({
         if (key === keyCode.ENTER) {
             // destroy editor to avoid posting request after resort
             sheet.ht.destroyEditor(true);
+            sheet.ht.deselectCell();
 
             $(e.target).change();
             sheet.filter();
             e.preventDefault();
         }
+    },
+    
+    // to alleviate focus issues focus on mouse over
+    filterMouseOver: function (sheet, e) {
+        $(e.target).focus();
     },
 
     // keep track of focused filter input. if previous filter altered,
@@ -416,26 +418,34 @@ PrimeFaces.widget.ExtSheet = PrimeFaces.widget.DeferredWidget.extend({
         // we need to prevent recursion with this hack
         sheet.focusing = true;
         sheet.ht.destroyEditor(true);
+        sheet.ht.deselectCell();
         // for some reason does not work when focused immediately,
         setTimeout(function () {
-            sheet.focusInput.val($(inp).attr('id'));
             $(inp).focus();
             sheet.focusing = false;
-
-            sheet.filter();
-        },100);
+        },150);
     },
 
     // remove focused filter tracking when tabbing off
     filterFocusOut: function (sheet, inp) {
+        // if this call is the result of jQuery setFocus, exit
+        if (sheet.focusing)
+            return;
+        
         sheet.filter();
-        sheet.focusInput.val(null);
     },
     
     // clear currently stored input and deltas
     clearDataInput: function () {
         this.cfg.delta = {};
         this.dataInput.val('');
+    },
+    
+    // clear all the filters
+    clearFilters: function () {
+        $("input[id^='" + this.id + "_filter_']").val("");
+        this.filterChanged = true;
+        this.filter();
     },
     
     // tell handstontable to repaint itself
